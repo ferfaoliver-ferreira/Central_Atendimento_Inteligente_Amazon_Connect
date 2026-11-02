@@ -38,6 +38,18 @@ O Amazon Connect oferece análise conversacional que pode transcrever interaçõ
 
 Para habilitar isso, configure a análise conversacional no recurso de gravação e análise do fluxo e verifique os idiomas e recursos disponíveis para a instância. Essa parte ainda está no planejamento deste projeto. A análise pode apoiar a revisão de contenção no autoatendimento, transferências, tempo de espera e satisfação; não garante, sozinha, redução de carga ou melhora de métricas. [Análise conversacional do Connect](https://docs.aws.amazon.com/connect/latest/adminguide/contact-lens.html) · [Configurar análise e sentimento no fluxo](https://docs.aws.amazon.com/connect/latest/adminguide/set-recording-behavior.html)
 
+## Outros diferenciais do Amazon Connect
+
+Além dos recursos de IA descritos acima, o Amazon Connect oferece capacidades que podem ampliar o atendimento conforme a operação precisar. Elas dependem de configuração e integração; nem todas fazem parte da implementação atual deste protótipo.
+
+- **Atendimento por vários canais:** voz, chat, e-mail e tarefas podem compartilhar recursos de filas, roteamento e gerenciamento. Quando o atendimento muda de canal ou de agente, o histórico pode ajudar a evitar que o cliente precise repetir tudo. [Recursos omnichannel](https://aws.amazon.com/products/connect/customer/features/)
+- **Roteamento por fila, horário e habilidade:** perfis de roteamento podem direcionar cada contato a filas e agentes adequados, considerando regras do fluxo, disponibilidade e habilidades configuradas. Isso permite combinar autoatendimento, fila preferencial e atendimento humano. [Como funciona o roteamento](https://docs.aws.amazon.com/connect/latest/adminguide/about-routing.html)
+- **Integração com dados e sistemas:** blocos de fluxo podem chamar AWS Lambda e outros recursos para consultar diretórios ou conectar etapas de atendimento a sistemas da organização. Neste projeto, a proposta é consultar o arquivo JSON fictício no S3 por região e especialidade.
+- **Tarefas e acompanhamentos:** contatos que precisam de retorno podem ser registrados, atribuídos, priorizados e acompanhados como tarefas, ajudando a equipe a não perder ações pendentes. [Tarefas no Amazon Connect](https://docs.aws.amazon.com/connect/latest/adminguide/tasks.html)
+- **Painéis e gestão da operação:** métricas em tempo real e históricas ajudam a acompanhar filas, volume de contatos, tempo de espera, desempenho e tendências. Esses dados podem orientar ajustes no fluxo, no treinamento e no planejamento da equipe. [Analytics e otimização](https://aws.amazon.com/products/connect/customer/analytics/)
+
+Para este fluxo, os ganhos mais relevantes são combinar a busca por voz com uma consulta ao diretório, encaminhar cada caso à fila adequada e usar os dados das conversas para orientar melhorias. São capacidades da plataforma; o resultado depende da implementação, dos testes e do acompanhamento contínuo.
+
 ## Passo a passo
 
 ### 1. Preparar a base de conhecimento
