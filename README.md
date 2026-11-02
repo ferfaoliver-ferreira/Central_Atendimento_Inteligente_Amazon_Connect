@@ -2,7 +2,7 @@
 
 Documentação ilustrada de um protótipo de atendimento telefônico para ajudar clientes a localizar médicos de uma rede fictícia por região e especialidade no estado de São Paulo.
 
-> **Status do projeto:** em andamento. O projeto ainda não foi finalizado; a integração de consulta ao diretório e os testes ponta a ponta permanecem como próximos passos.
+> **Status do projeto:** em andamento. O projeto ainda não foi finalizado. A consulta ao diretório por Lambda, as regras da fila preferencial, a análise de sentimentos e os testes ponta a ponta ainda precisam ser concluídos e validados.
 
 > **Aviso:** a base de conhecimento armazenada no S3 foi criada com dados fictícios para demonstração: nomes, endereços, CEPs e telefones não representam profissionais ou uma rede credenciada real. Não use esses dados para atendimento ou contato.
 
@@ -15,6 +15,28 @@ Documentação ilustrada de um protótipo de atendimento telefônico para ajudar
 5. O fluxo pode informar os dados ou encaminhar o cliente para uma fila de atendimento humano.
 
 As capturas registram telas de configuração do bot, do fluxo do Connect, de filas e do S3. Identificadores de conta, nomes de recursos e dados de usuário foram ocultados nas imagens destinadas a este repositório. As capturas documentam etapas de configuração; valide a integração em execução na sua conta AWS.
+
+## IA com foco em um atendimento mais humanizado
+
+O objetivo do projeto é usar IA para tornar o atendimento mais simples e acolhedor, sem deixar de oferecer acesso a uma pessoa quando a situação pedir conversa ou apoio humano.
+
+### Conversa por voz, sem depender de digitação
+
+Com um bot Amazon Lex ligado ao fluxo de voz do Amazon Connect, o cliente pode dizer naturalmente o que precisa — por exemplo, “quero encontrar um cardiologista na zona sul” — em vez de navegar por menus numéricos ou digitar em uma central tradicional. O bot pode confirmar o que entendeu, perguntar a informação que estiver faltando e encaminhar a solicitação ao fluxo. O Connect também permite configurar a voz e os prompts usados na conversa. [Integração de um bot Lex ao Connect](https://docs.aws.amazon.com/connect/latest/adminguide/amazon-lex.html) · [Bloco de entrada do cliente](https://docs.aws.amazon.com/connect/latest/adminguide/get-customer-input.html)
+
+### Intenções com palavras do dia a dia
+
+As intenções foram pensadas a partir de frases que clientes podem usar na rotina, como “quero um médico do coração”, “cardio” ou “preciso de um pediatra”. Enunciados variados, exemplos incompletos, aliases e valores de slots ajudam o Lex a relacionar essas formas de falar à mesma intenção e a coletar região e especialidade. Isso melhora a cobertura, mas não garante reconhecimento perfeito: por isso, o bot deve pedir esclarecimento quando houver dúvida, oferecer uma nova tentativa e manter um caminho de fallback ou atendimento humano. [Boas práticas para enunciados de exemplo do Lex](https://docs.aws.amazon.com/lexv2/latest/dg/sample-utterances.html)
+
+### Atendimento preferencial e encaminhamento humano
+
+A fila **Preferencial** é uma decisão de desenho voltada a oferecer atenção diferenciada a clientes que atendam aos critérios definidos pelo serviço. A prioridade e as regras de encaminhamento precisam ser configuradas de forma explícita e testadas no fluxo. Pedidos complexos ou que demandem acolhimento podem seguir para um atendente humano, enquanto a automação ajuda a resolver buscas simples pela rede. [Prioridade e roteamento de filas no Connect](https://docs.aws.amazon.com/connect/latest/adminguide/concepts-routing-profiles-priority.html)
+
+### Sentimentos e melhoria contínua da equipe
+
+O Amazon Connect oferece análise conversacional que pode transcrever interações e analisar sentimento e temas da conversa. Os resultados podem ajudar a equipe a observar sinais de experiência positiva ou negativa, localizar contatos que merecem revisão e identificar oportunidades de treinamento ou ajustes no fluxo. Sentimento negativo pode indicar frustração; a classificação é um sinal para análise, não uma leitura infalível das emoções da pessoa. Relatórios e tendências também podem orientar melhorias de métricas e de operação.
+
+Para habilitar isso, configure a análise conversacional no recurso de gravação e análise do fluxo e verifique os idiomas e recursos disponíveis para a instância. Essa parte ainda está no planejamento deste projeto. A análise pode apoiar a revisão de contenção no autoatendimento, transferências, tempo de espera e satisfação; não garante, sozinha, redução de carga ou melhora de métricas. [Análise conversacional do Connect](https://docs.aws.amazon.com/connect/latest/adminguide/contact-lens.html) · [Configurar análise e sentimento no fluxo](https://docs.aws.amazon.com/connect/latest/adminguide/set-recording-behavior.html)
 
 ## Passo a passo
 
@@ -95,7 +117,7 @@ No designer de fluxos, conecte a entrada da chamada à saudação, à coleta das
 
 ### 5. Configurar horários e filas de atendimento
 
-Configure o horário de funcionamento e as filas de atendimento. Associe as filas às opções de roteamento e revise o destino de transferência e o tratamento para fila sem agentes disponíveis. Os nomes e as descrições específicos das filas foram ocultados nas imagens.
+Configure o horário de funcionamento e as filas de atendimento. Associe as filas às opções de roteamento e revise o destino de transferência e o tratamento para fila sem agentes disponíveis. A fila **Preferencial** faz parte da proposta humanizada; defina os critérios de elegibilidade e a prioridade operacional antes de ativá-la. Os nomes e as descrições específicos das filas foram ocultados nas imagens.
 
 ![Horário de funcionamento do Connect.](docs/images/15-connect-configuracao-de-fila.jpg)
 
@@ -149,7 +171,7 @@ O fluxo mostrado inclui um bloco de função AWS Lambda, mas a captura indica qu
 
 ### 8. Validar o atendimento
 
-Percorra cada ramo do fluxo: busca por região e especialidade, ausência de resultados, erro, fallback e transferência para atendimento humano. Teste as seis regiões e as especialidades e confirme que os atributos retornados são falados ou encaminhados corretamente.
+Percorra cada ramo do fluxo: busca por região e especialidade, ausência de resultados, erro, fallback e transferência para atendimento humano. Teste as seis regiões, especialidades, diferentes maneiras cotidianas de pedir ajuda e as regras da fila Preferencial. Como próximo passo, configure e valide a análise conversacional/sentimento e acompanhe indicadores como resolução no autoatendimento, transferências, tempo de espera e satisfação.
 
 ![Intenção de atendimento humano.](docs/images/20-lex-intencao-de-atendimento.png)
 
