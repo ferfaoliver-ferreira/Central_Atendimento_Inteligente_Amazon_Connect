@@ -2,7 +2,9 @@
 
 Documentação ilustrada de um protótipo de atendimento telefônico para ajudar clientes a localizar médicos de uma rede fictícia por região e especialidade no estado de São Paulo.
 
-> **Aviso:** os nomes, endereços, CEPs e telefones da base são fictícios e servem somente para demonstração. Não representam profissionais ou uma rede credenciada real. Não use os dados para atendimento ou contato.
+> **Status do projeto:** em andamento. O projeto ainda não foi finalizado; a integração de consulta ao diretório e os testes ponta a ponta permanecem como próximos passos.
+
+> **Aviso:** a base de conhecimento armazenada no S3 foi criada com dados fictícios para demonstração: nomes, endereços, CEPs e telefones não representam profissionais ou uma rede credenciada real. Não use esses dados para atendimento ou contato.
 
 ## Como funciona a experiência
 
@@ -12,13 +14,13 @@ Documentação ilustrada de um protótipo de atendimento telefônico para ajudar
 4. A consulta ao diretório retorna opções de médicos daquela combinação.
 5. O fluxo pode informar os dados ou encaminhar o cliente para uma fila de atendimento humano.
 
-As capturas registram telas de configuração do Amazon Lex, do fluxo do Connect, de filas, do S3 e de componentes AWS relacionados. Elas documentam as etapas de configuração; a integração em execução deve ser validada na própria conta AWS.
+As capturas registram telas de configuração do bot, do fluxo do Connect, de filas e do S3. Identificadores de conta, nomes de recursos e dados de usuário foram ocultados nas imagens destinadas a este repositório. As capturas documentam etapas de configuração; valide a integração em execução na sua conta AWS.
 
 ## Passo a passo
 
 ### 1. Preparar a base de conhecimento
 
-O diretório tem 20 especialidades, seis regiões e cinco médicos fictícios por combinação, totalizando 600 registros. O JSON contém os catálogos de regiões e especialidades, aliases para reconhecimento e a lista de médicos. O CSV oferece a mesma lista em formato tabular.
+**A base de conhecimento do S3 foi criada com dados fictícios.** O diretório tem 20 especialidades, seis regiões e cinco médicos fictícios por combinação, totalizando 600 registros. O JSON contém os catálogos de regiões e especialidades, aliases para reconhecimento e a lista de médicos. O CSV oferece a mesma lista em formato tabular.
 
 - [JSON estruturado](data/base_conhecimento_medicos_sp.json)
 - [CSV de médicos](data/medicos_rede_ficticia_sp.csv)
@@ -39,9 +41,9 @@ Crie ou abra o bot e configure as intenções necessárias para identificar a re
 
 *Figura 3 — Edição de uma intenção e seus enunciados de exemplo.*
 
-![Aliases cadastrados no Lex.](docs/images/04-lex-aliases-de-valores.jpg)
+![Aliases do bot conversacional.](docs/images/04-lex-aliases-de-valores.jpg)
 
-*Figura 4 — Aliases ajudam a mapear diferentes formas de falar para um mesmo valor reconhecido.*
+*Figura 4 — Aliases e versões do bot; nomes próprios foram ocultados.*
 
 ### 3. Cadastrar regiões e especialidades
 
@@ -91,69 +93,67 @@ No designer de fluxos, conecte a entrada da chamada à saudação, à coleta das
 
 *Figura 14 — Visão do fluxo de entrada, com blocos de voz, coleta de informações, consulta e transferência.*
 
-### 5. Configurar fila e encaminhamento
+### 5. Configurar horários e filas de atendimento
 
-Crie a fila de atendimento humano e associe-a às opções de roteamento e aos horários de funcionamento da operação. Revise o destino de transferência e o tratamento para fila sem agentes disponíveis.
+Configure o horário de funcionamento e as filas de atendimento. Associe as filas às opções de roteamento e revise o destino de transferência e o tratamento para fila sem agentes disponíveis. Os nomes e as descrições específicos das filas foram ocultados nas imagens.
 
-![Configuração de fila do Connect.](docs/images/15-connect-configuracao-de-fila.jpg)
+![Horário de funcionamento do Connect.](docs/images/15-connect-configuracao-de-fila.jpg)
 
-*Figura 15 — Configuração de fila usada pelo caminho de atendimento humano.*
+*Figura 15 — Horário de funcionamento e agenda da operação; o ARN foi ocultado.*
 
-### 6. Armazenar os arquivos no Amazon S3
+![Fila básica no Connect.](docs/images/16-connect-fila-basica.jpg)
 
-Crie um bucket na região AWS escolhida para o ambiente e envie o JSON (e, se útil para integração ou auditoria, o CSV). Mantenha o bucket privado e conceda acesso de leitura somente à função de integração que precisa consultar os objetos.
+*Figura 16 — Lista de filas do Connect, com o nome e a descrição da fila ocultados.*
 
-![Bucket S3 para os arquivos da base.](docs/images/16-s3-bucket-da-base.jpg)
+![Filas configuradas no Connect.](docs/images/17-connect-lista-de-filas.jpg)
 
-*Figura 16 — Área de armazenamento S3 usada para organizar os arquivos da base de conhecimento.*
+*Figura 17 — Visão das filas de atendimento; nomes e descrições específicos foram ocultados.*
 
-![Envio da base para o S3.](docs/images/19-s3-upload-da-base.png)
+![Filas de atendimento no Connect.](docs/images/18-connect-filas-preferenciais.jpg)
 
-*Figura 17 — Arquivo da base carregado no bucket S3.*
+*Figura 18 — Filas básica e preferencial; dados de usuário foram ocultados.*
 
-### 7. Integrar a consulta ao fluxo
+### 6. Criar o bucket e enviar a base fictícia ao Amazon S3
 
-Uma forma de fazer a busca determinística é chamar uma função AWS Lambda a partir do fluxo. A função recebe os identificadores normalizados da região e da especialidade, lê o JSON no S3, filtra os médicos que correspondem aos dois valores e devolve os campos necessários ao Connect. Configure a permissão `s3:GetObject` para o objeto usado e teste as respostas de sucesso, ausência de resultados e erro.
+Crie um bucket privado na região AWS escolhida para o ambiente. A base de conhecimento usada neste exemplo é fictícia; envie o JSON e, se necessário, o CSV. Restrinja a leitura à função de integração que consulta os objetos.
 
-![Lista de funções Lambda.](docs/images/17-lambda-funcoes-de-integracao.jpg)
+![Configuração inicial do bucket S3.](docs/images/21-s3-criacao-de-bucket.png)
 
-*Figura 18 — Lista de funções disponível na conta para componentes de integração.*
+*Figura 19 — Criação de bucket S3; o nome específico foi substituído por um exemplo.*
 
-![Visão da lista de funções AWS.](docs/images/18-lambda-lista-de-funcoes.jpg)
+![Bloqueio de acesso público do bucket.](docs/images/22-s3-bloqueio-acesso-publico.png)
 
-*Figura 19 — Outra captura da área de funções Lambda durante a configuração do protótipo.*
+*Figura 20 — Configurações de bloqueio de acesso público para manter o bucket privado.*
 
-### 8. Associar o Lex ao Connect e validar
+![Versionamento e tags do bucket.](docs/images/23-s3-versionamento-e-tags.png)
 
-Associe o bot publicado ao fluxo, confira se os nomes de atributos e IDs usados nas intenções correspondem aos valores da base e percorra cada ramo pelo menos uma vez. Valide as seis regiões e as especialidades, além dos caminhos de fallback, erro e transferência. Os prints abaixo registram exemplos de configuração das intenções relacionadas ao atendimento.
+*Figura 21 — Opções de versionamento e tags durante a criação do bucket.*
 
-![Configuração da intenção de atendimento.](docs/images/20-lex-intencao-de-atendimento.png)
+![Criptografia e Object Lock.](docs/images/24-s3-criptografia-object-lock.png)
 
-*Figura 20 — Intenção de atendimento humano e enunciados associados.*
+*Figura 22 — Opções de criptografia e bloqueio de objetos do S3.*
 
-### 9. Referências de configuração do Amazon Bedrock
+![Conteúdo do bucket S3.](docs/images/25-s3-conteudo-do-bucket.png)
 
-O ZIP também contém capturas de telas de configuração do Bedrock. Elas ficam documentadas em sequência para preservar o material de referência; use-as somente se a arquitetura do seu projeto realmente incluir recursos do Bedrock.
+*Figura 23 — Visualização do bucket demonstrativo; o nome foi ocultado. A captura foi feita antes do envio do arquivo.*
 
-![Opções de modelo do Bedrock.](docs/images/21-bedrock-opcoes-de-modelo.png)
+![Upload da base fictícia ao S3.](docs/images/19-s3-upload-da-base.png)
 
-*Figura 21 — Tela de seleção/configuração de modelo no Bedrock.*
+*Figura 24 — Upload bem-sucedido do JSON fictício. O nome do bucket foi substituído por um exemplo.*
 
-![Parâmetros de modelo do Bedrock.](docs/images/22-bedrock-configuracoes-de-modelo.png)
+### 7. Associar o bot ao Connect e integrar a consulta
 
-*Figura 22 — Configurações adicionais de modelo exibidas durante a preparação.*
+Associe o bot publicado ao fluxo e confira se os IDs de região e especialidade correspondem aos do JSON. Para buscar os registros de forma determinística, implemente uma função AWS Lambda que receba esses IDs, leia o objeto JSON no S3, filtre os médicos pela combinação e devolva os campos necessários ao Connect. Conceda `s3:GetObject` somente ao objeto usado.
 
-![Configurações relacionadas a conhecimento no Bedrock.](docs/images/23-bedrock-configuracoes-de-conhecimento.png)
+O fluxo mostrado inclui um bloco de função AWS Lambda, mas a captura indica que a função ainda não estava selecionada no bloco. A integração descrita aqui é o próximo passo de implementação, não uma afirmação de que a consulta já esteja operacional.
 
-*Figura 23 — Opções relacionadas à configuração de conhecimento no Bedrock.*
+### 8. Validar o atendimento
 
-![Validação da configuração no Bedrock.](docs/images/24-bedrock-validacao-da-configuracao.png)
+Percorra cada ramo do fluxo: busca por região e especialidade, ausência de resultados, erro, fallback e transferência para atendimento humano. Teste as seis regiões e as especialidades e confirme que os atributos retornados são falados ou encaminhados corretamente.
 
-*Figura 24 — Tela de validação e revisão das opções selecionadas.*
+![Intenção de atendimento humano.](docs/images/20-lex-intencao-de-atendimento.png)
 
-![Etapa complementar da configuração no Bedrock.](docs/images/25-bedrock-etapa-de-configuracao.png)
-
-*Figura 25 — Captura complementar do processo de configuração no Bedrock.*
+*Figura 25 — Intenção de atendimento humano e exemplos de enunciados.*
 
 ## Estrutura do repositório
 
