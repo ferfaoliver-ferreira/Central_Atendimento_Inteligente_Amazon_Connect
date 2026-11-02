@@ -123,7 +123,8 @@ Use os mesmos identificadores normalizados no Lex, na Lambda e no JSON. As regi�
 
 No designer de fluxos, conecte a entrada da chamada à saudação, à coleta das informações e às decisões para busca ou atendimento humano. Trate caminhos de sucesso e erro, configure mensagens de retorno e encaminhe a chamada para a fila apropriada quando necessário.
 
-![Fluxo de atendimento no Amazon Connect.](docs/images/14-connect-fluxo-de-atendimento.png)
+<img width="1901" height="918" alt="Captura de tela 2026-11-01 211323" src="https://github.com/user-attachments/assets/bfab6a71-c13e-406e-9bf3-2ceb8d9cdff7" />
+
 
 *Figura 14 — Visão do fluxo de entrada, com blocos de voz, coleta de informações, consulta e transferência.*
 
